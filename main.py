@@ -190,10 +190,14 @@ def main(arg):
                 print('it %s [epoch %s] \t %s %.4f \t %s %.4f' %
                       (str(it_index).zfill(3),str(epoch).zfill(2),'d_loss',l_d,'g_loss',l_g))
             it_index += 1
+        ################################################
+        # evaluation and saving results
+        ################################################
 
-        ########################################
-        # evaluation and save temporal results
-        ########################################
+        # calculate the accuracy
+        acc = evaluator(val_loader,d_net,gpu_use)
+        print('the accuracy of epoch %d is \t %.4f' % (epoch,acc))
+
         # save state per epoch
         if not os.path.exists(os.path.join(arg.save_log,'checkpoint')):
             os.makedirs(os.path.join(arg.save_log,'checkpoint'))
@@ -204,9 +208,6 @@ def main(arg):
             torch.save(g_net.state_dict(),os.path.join(arg.save_log,'checkpoint','g_net'+str(epoch)+'.pth'))
             torch.save(d_net.state_dict(),os.path.join(arg.save_log,'checkpoint','d_net'+str(epoch)+'.pth'))
 
-        # calculate the accuracy
-        acc = evaluator(val_loader,d_net,gpu_use)
-        print('the accuracy of epoch %d is \t %.4f' % (epoch,acc))
         # save images
         z_save = torch.rand((arg.batch_size, arg.noise_dim))
         if torch.cuda.is_available():
@@ -232,7 +233,7 @@ def main(arg):
 
 if __name__ == '__main__':
     arg = argparse.ArgumentParser()
-    arg.add_argument('--epoch_num', type=int, default=40, help='the number of epochs')
+    arg.add_argument('--epoch_num', type=int, default=100, help='the number of epochs')
     arg.add_argument('--batch_size', type=int, default=64, help='the batch size for training')
     arg.add_argument('--noise_dim', type=int, default=128, help='the dimension of the noise vector')
     arg.add_argument('--lr', type=float, default=2e-4, help='the learning rate for updating model')
